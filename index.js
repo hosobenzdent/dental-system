@@ -43,9 +43,7 @@ app.post('/login', (req, res) => {
   res.status(401).json({ error: "invalid" });
 });
 
-app.listen(3000, () => {
-  console.log("Server running");
-});
+
 let permitCounter = 1;
 
 // إنشاء إذن مزاولة
@@ -148,4 +146,7 @@ body {
 </body>
 </html>
   `);
+});
+app.listen(3000, () => {
+  console.log("Server running");
 });

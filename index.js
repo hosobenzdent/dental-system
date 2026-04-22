@@ -79,7 +79,7 @@ app.get('/permit/:id', async (req, res) => {
 
   const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${member.permit_number}`;
 
-  res.send(`
+  
 res.send(`
 <html dir="rtl">
 <head>

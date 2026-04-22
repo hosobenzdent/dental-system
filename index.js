@@ -79,7 +79,9 @@ app.get('/permit/:id', async (req, res) => {
 
   const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${member.permit_number}`;
 
-  
+if (!member.permit_number) {
+  return res.send("⚠️ لم يتم إصدار إذن لهذا العضو بعد");
+}  
 res.send(`
 <html dir="rtl">
 <head>
@@ -119,11 +121,21 @@ body {
   cursor: pointer;
 }
 
-/* إخفاء الزر عند الطباعة */
+/* إعداد الطباعة */
 @media print {
+  body {
+    padding: 0;
+  }
+
   .print-btn {
     display: none;
   }
+}
+
+/* حجم الورقة */
+@page {
+  size: A4;
+  margin: 20mm;
 }
 
 </style>

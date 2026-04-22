@@ -49,7 +49,76 @@ app.listen(3000, () => {
 let permitCounter = 1;
 
 // إنشاء إذن مزاولة
-app.post('/permit/:id', (req, res) => {
+app.post('/permit/:id', (req, res.send(`
+<html dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+  font-family: 'Arial';
+  text-align: center;
+  padding: 40px;
+}
+.title {
+  font-size: 28px;
+  font-weight: bold;
+}
+.subtitle {
+  margin-top: 10px;
+}
+.name {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+.box {
+  border: 2px solid #000;
+  padding: 30px;
+  margin-top: 30px;
+}
+.footer {
+  margin-top: 50px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">إذن رقم (2020)</div>
+<div class="subtitle">بشأن مزاولة مهنة الطب بعيادة أو مؤسسة طبية</div>
+
+<div class="box">
+
+<p>وبالاشتراك في عضوية نقابة أطباء الأسنان واستيفاء الشروط اللازمة</p>
+
+<p>يؤذن للسيد/السيدة</p>
+
+<div class="name">${member.full_name}</div>
+
+<p>${genderText.reg} تحت رقم (${member.registration_number})</p>
+
+<p>بمزاولة مهنة ${genderText.job}</p>
+
+<p>وذلك لمدة سنة تبدأ من تاريخ صدوره</p>
+
+<p>تاريخ الإصدار: ${member.issue_date}</p>
+
+</div>
+
+<br/>
+
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${verifyUrl}" />
+
+<p>امسح الرمز للتحقق</p>
+
+<div class="footer">
+<p>نقيب أطباء الأسنان</p>
+<p>د. حسام الدين عمر بن زايد</p>
+</div>
+
+</body>
+</html>
+`);
   const member = members.find(m => m.id == req.params.id);
 
   if (!member) {

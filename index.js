@@ -73,42 +73,32 @@ app.get('/permit/:id', async (req, res) => {
 
   if (!member) return res.send("غير موجود");
 
+  if (!member.permit_number) {
+    return res.send("⚠️ لم يتم إصدار إذن لهذا العضو بعد");
+  }
+
   const genderText = member.gender === 'female'
     ? { reg: "المسجلة", job: "طبيبة أسنان" }
     : { reg: "المسجل", job: "طبيب أسنان" };
 
   const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${member.permit_number}`;
 
-if (!member.permit_number) {
-  return res.send("⚠️ لم يتم إصدار إذن لهذا العضو بعد");
-}  
-res.send(`
+  res.send(`
 <html dir="rtl">
 <head>
 <meta charset="UTF-8">
 <style>
-
 body {
   margin: 0;
-  padding: 0;
   font-family: Arial;
 }
 
-/* الصفحة */
 .page {
   width: 794px;
   height: 1123px;
-  background-image: url('https://i.imgur.com/YOUR_IMAGE_LINK.png');
-  background-size: cover;
+  background-color: #fff;
   position: relative;
-}
-
-/* البيانات */
-.content {
-  position: absolute;
-  top: 320px;
-  right: 80px;
-  left: 80px;
+  padding: 100px;
   text-align: center;
 }
 
@@ -123,14 +113,6 @@ body {
   margin: 10px 0;
 }
 
-/* QR */
-.qr {
-  position: absolute;
-  bottom: 120px;
-  left: 80px;
-}
-
-/* زر الطباعة */
 .print-btn {
   position: fixed;
   top: 20px;
@@ -147,7 +129,6 @@ body {
     display: none;
   }
 }
-
 </style>
 </head>
 
@@ -156,34 +137,21 @@ body {
 <button class="print-btn" onclick="window.print()">🖨 طباعة</button>
 
 <div class="page">
+  <div class="text">يؤذن للسيد/السيدة</div>
+  <div class="name">${member.full_name}</div>
+  <div class="text">${genderText.reg} تحت رقم (${member.registration_number})</div>
+  <div class="text">بمزاولة مهنة ${genderText.job}</div>
+  <div class="text">تاريخ الإصدار: ${member.issue_date}</div>
 
-  <div class="content">
-    <div class="text">يؤذن للسيد/السيدة</div>
+  <br/>
 
-    <div class="name">${member.full_name}</div>
-
-    <div class="text">
-      ${genderText.reg} تحت رقم (${member.registration_number})
-    </div>
-
-    <div class="text">
-      بمزاولة مهنة ${genderText.job}
-    </div>
-
-    <div class="text">
-      تاريخ الإصدار: ${member.issue_date}
-    </div>
-  </div>
-
-  <div class="qr">
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${verifyUrl}" />
-  </div>
-
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${verifyUrl}" />
 </div>
 
 </body>
 </html>
-`);
+  `);
+});
 
 // التحقق
 app.get('/verify/:id', async (req, res) => {

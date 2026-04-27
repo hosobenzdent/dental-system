@@ -95,7 +95,10 @@ body {
 .page {
   width: 794px;
   height: 1123px;
-  background-color: #fff;
+  background-image: url('https://raw.githubusercontent.com/hosobenzdent/dental-system/main/%D8%A7%D9%84%D8%B2%D8%A7%D9%88%D9%8A%D8%A9_page-0001.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   position: relative;
   padding: 100px;
   text-align: center;

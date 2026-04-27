@@ -92,7 +92,6 @@ body {
   margin: 0;
   font-family: Arial;
 }
-
 .page {
   width: 794px;
   height: 1123px;

@@ -89,14 +89,27 @@ res.send(`
 <style>
 
 body {
+  margin: 0;
+  padding: 0;
   font-family: Arial;
-  text-align: center;
-  padding: 40px;
 }
 
-.title {
-  font-size: 28px;
-  font-weight: bold;
+/* الصفحة */
+.page {
+  width: 794px;
+  height: 1123px;
+  background-image: url('https://i.imgur.com/YOUR_IMAGE_LINK.png');
+  background-size: cover;
+  position: relative;
+}
+
+/* البيانات */
+.content {
+  position: absolute;
+  top: 320px;
+  right: 80px;
+  left: 80px;
+  text-align: center;
 }
 
 .name {
@@ -105,37 +118,34 @@ body {
   margin: 20px 0;
 }
 
-.box {
-  border: 2px solid #000;
-  padding: 30px;
-  margin-top: 30px;
+.text {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+/* QR */
+.qr {
+  position: absolute;
+  bottom: 120px;
+  left: 80px;
 }
 
 /* زر الطباعة */
 .print-btn {
-  margin-top: 20px;
-  padding: 10px 20px;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 10px;
   background: black;
   color: white;
   border: none;
   cursor: pointer;
 }
 
-/* إعداد الطباعة */
 @media print {
-  body {
-    padding: 0;
-  }
-
   .print-btn {
     display: none;
   }
-}
-
-/* حجم الورقة */
-@page {
-  size: A4;
-  margin: 20mm;
 }
 
 </style>
@@ -143,28 +153,37 @@ body {
 
 <body>
 
-<div class="title">إذن مزاولة مهنة</div>
-
-<div class="box">
-  <p>يؤذن للسيد/السيدة</p>
-  <div class="name">${member.full_name}</div>
-  <p>${genderText.reg} تحت رقم ${member.registration_number}</p>
-  <p>${genderText.job}</p>
-  <p>تاريخ الإصدار: ${member.issue_date}</p>
-</div>
-
-<br/>
-
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${verifyUrl}" />
-
-<br/><br/>
-
 <button class="print-btn" onclick="window.print()">🖨 طباعة</button>
+
+<div class="page">
+
+  <div class="content">
+    <div class="text">يؤذن للسيد/السيدة</div>
+
+    <div class="name">${member.full_name}</div>
+
+    <div class="text">
+      ${genderText.reg} تحت رقم (${member.registration_number})
+    </div>
+
+    <div class="text">
+      بمزاولة مهنة ${genderText.job}
+    </div>
+
+    <div class="text">
+      تاريخ الإصدار: ${member.issue_date}
+    </div>
+  </div>
+
+  <div class="qr">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${verifyUrl}" />
+  </div>
+
+</div>
 
 </body>
 </html>
 `);
-});
 
 // التحقق
 app.get('/verify/:id', async (req, res) => {

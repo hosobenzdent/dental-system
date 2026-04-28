@@ -112,7 +112,7 @@ body {
   background-size: 100% 100%; 
   background-repeat: no-repeat;
   position: relative;
-  padding: 240px 80px 80px 80px;
+  padding: 220px 80px 80px 80px;
   box-sizing: border-box; 
 }
 

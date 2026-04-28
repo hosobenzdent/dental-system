@@ -108,10 +108,12 @@ body {
   width: 794px;
   height: 1123px;
   margin: auto;
-  position: relative;
   background-image: url('https://github.com/hosobenzdent/dental-system/blob/main/background.jpg?raw=true');
-  background-size: cover;
+  background-size: 100% 100%; 
+  background-repeat: no-repeat;
+  position: relative;
   padding: 340px 80px 80px 80px;
+  box-sizing: border-box; 
 }
 
 /* رقم الإذن */

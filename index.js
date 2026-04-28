@@ -4,13 +4,13 @@ const app = express();
 
 app.use(express.json());
 
-// الاتصال بقاعدة البيانات
+// الاتصال بقاعدة البيانات (Supabase / Render)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
-// إنشاء جدول إذا لم يوجد
+// إنشاء الجدول
 pool.query(`
 CREATE TABLE IF NOT EXISTS members (
   id SERIAL PRIMARY KEY,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS members (
 
 // الصفحة الرئيسية
 app.get('/', (req, res) => {
-  res.send("Dental System API Running");
+  res.send("Dental System Running ✅");
 });
 
 // إضافة عضو
@@ -50,7 +50,7 @@ app.get('/members', async (req, res) => {
 app.post('/permit/:id', async (req, res) => {
   const id = req.params.id;
 
-  const permitNumber = Math.floor(Math.random() * 100000);
+  const permitNumber = Math.floor(1000 + Math.random() * 9000);
 
   await pool.query(
     `UPDATE members 
@@ -62,7 +62,7 @@ app.post('/permit/:id', async (req, res) => {
   res.json({ permit_number: permitNumber });
 });
 
-// عرض إذن
+// عرض إذن رسمي
 app.get('/permit/:id', async (req, res) => {
   const result = await pool.query(
     `SELECT * FROM members WHERE id = $1`,
@@ -77,9 +77,15 @@ app.get('/permit/:id', async (req, res) => {
     return res.send("⚠️ لم يتم إصدار إذن لهذا العضو بعد");
   }
 
-  const genderText = member.gender === 'female'
-    ? { reg: "المسجلة", job: "طبيبة أسنان" }
-    : { reg: "المسجل", job: "طبيب أسنان" };
+  // 👇 النص الذكي حسب الجنس
+  const isFemale = member.gender === 'female';
+
+  const genderText = {
+    reg: isFemale ? "المسجلة" : "المسجل",
+    job: isFemale ? "طبيبة أسنان" : "طبيب أسنان"
+  };
+
+  const titleText = isFemale ? "السيدة" : "السيد";
 
   const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${member.permit_number}`;
 
@@ -87,50 +93,90 @@ app.get('/permit/:id', async (req, res) => {
 <html dir="rtl">
 <head>
 <meta charset="UTF-8">
+
 <style>
+
 body {
   margin: 0;
   font-family: Arial;
-}
-.page {
-  width: 794px;
-  height: 1123px;
-  background-image: url('https://raw.githubusercontent.com/hosobenzdent/dental-system/main/background.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-  padding: 100px;
+  direction: rtl;
   text-align: center;
 }
 
+/* صفحة A4 */
+.page {
+  width: 794px;
+  height: 1123px;
+  margin: auto;
+  position: relative;
+  background-image: url('https://github.com/hosobenzdent/dental-system/blob/main/background.jpg?raw=true');
+  background-size: cover;
+  padding: 120px 80px;
+}
+
+/* رقم الإذن */
+.permit-number {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* العنوان */
+.permit-title {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+/* الاسم */
 .name {
   font-size: 26px;
   font-weight: bold;
   margin: 20px 0;
 }
 
+/* النص */
 .text {
-  font-size: 18px;
-  margin: 10px 0;
+  margin-top: 20px;
+  line-height: 2;
+  font-size: 16px;
 }
 
+/* QR */
+.qr {
+  margin-top: 20px;
+}
+
+/* التوقيع */
+.signature {
+  margin-top: 60px;
+  text-align: left;
+  padding-left: 50px;
+}
+
+/* زر الطباعة */
 .print-btn {
   position: fixed;
   top: 20px;
   left: 20px;
-  padding: 10px;
+  padding: 10px 20px;
   background: black;
   color: white;
   border: none;
   cursor: pointer;
 }
 
+/* الطباعة */
 @media print {
   .print-btn {
     display: none;
   }
 }
+
+/* حجم الصفحة */
+@page {
+  size: A4;
+  margin: 0;
+}
+
 </style>
 </head>
 
@@ -139,15 +185,64 @@ body {
 <button class="print-btn" onclick="window.print()">🖨 طباعة</button>
 
 <div class="page">
-  <div class="text">يؤذن للسيد/السيدة</div>
-  <div class="name">${member.full_name}</div>
-  <div class="text">${genderText.reg} تحت رقم (${member.registration_number})</div>
-  <div class="text">بمزاولة مهنة ${genderText.job}</div>
-  <div class="text">تاريخ الإصدار: ${member.issue_date}</div>
 
-  <br/>
+<div class="permit-number">
+إذن رقــم (${member.permit_number})
+</div>
 
-  <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${verifyUrl}" />
+<div class="permit-title">
+بشأن مزاولة مهنة الطب بعيادة أو مؤسسة طبية
+</div>
+
+<div class="text">
+
+<p>
+تنفيذا لأحكام القانون رقم (9) لسنة 1985 ولائحته التنفيذية الصادرة بقرار اللجنة الشعبية العامة (سابقا) رقم (698) لسنة 1985
+وقرار أمين اللجنة الشعبية العامة للصحة (سابقا) رقم (67) لسنة 1986
+بتحديد الأنشطة والأعمال الطبية التي يجوز مزاولتها في العيادات والمؤسسات الطبية.
+</p>
+
+<p>
+وبالاشتراك في عضوية نقابة أطباء الأسنان واستيفاء الشروط اللازمة للحصول على الإذن
+</p>
+
+<p>
+يؤذن لـ ${titleText}
+</p>
+
+<div class="name">
+د/ ${member.full_name}
+</div>
+
+<p>
+${genderText.reg} تحت رقم (${member.registration_number})
+ومهنته (${genderText.job})
+بمزاولة مهنة (طب الأسنان) بعيادة أو مؤسسة طبية
+</p>
+
+<p>
+وذلك لمدة سنة تبدأ من تاريخ صدوره
+</p>
+
+<p>
+ويلغى في الحالات المنصوص عليها في نص القانون رقم (9) لسنة (1985)
+</p>
+
+<p>
+صدر هذا الإذن بتاريخ: ${member.issue_date}
+</p>
+
+</div>
+
+<div class="qr">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${verifyUrl}" />
+</div>
+
+<div class="signature">
+<p>د. حسام الدين عمر بن زايد</p>
+<p>نقيب أطباء الأسنان بالزاوية</p>
+</div>
+
 </div>
 
 </body>
@@ -173,5 +268,5 @@ app.get('/verify/:id', async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log("Server running");
+  console.log("Server running 🚀");
 });

@@ -111,7 +111,7 @@ body {
   position: relative;
   background-image: url('https://github.com/hosobenzdent/dental-system/blob/main/background.jpg?raw=true');
   background-size: cover;
-  padding: 300px 80px 80px 80px;
+  padding: 340px 80px 80px 80px;
 }
 
 /* رقم الإذن */

@@ -139,7 +139,13 @@ body {
 .text p {
   margin: 10px 0;
 }
-
+.signature {
+  position: absolute;
+  bottom: 120px;
+  right: 80px;
+  text-align: right;
+  font-weight: bold;
+}
 .print-btn {
   position: fixed;
   top: 20px;

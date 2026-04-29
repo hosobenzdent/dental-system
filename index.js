@@ -98,82 +98,65 @@ app.get('/permit/:id', async (req, res) => {
 
 body {
   margin: 0;
+  background: #ccc;
   font-family: Arial;
-  direction: rtl;
-  text-align: center;
 }
 
-/* صفحة A4 */
 .page {
   width: 794px;
   height: 1123px;
   margin: auto;
   background-image: url('https://github.com/hosobenzdent/dental-system/blob/main/background.jpg?raw=true');
-  background-size: 100% 100%; 
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   position: relative;
-  padding: 210px 60px 80px 60px;
-  box-sizing: border-box; 
 }
 
-/* رقم الإذن */
-.permit-number {
-  font-size: 26px;
-  font-weight: bold;
-}
-
-/* العنوان */
-.permit-title {
-  margin-top: 10px;
-  font-size: 18px;
-}
-
-/* الاسم */
-.name {
-  font-size: 26px;
-  font-weight: bold;
-  margin: 20px 0;
-}
-
-/* النص */
-.text {
-  margin-top: 40px;
+.content {
+  position: absolute;
+  top: 300px;
+  left: 70px;
+  right: 70px;
+  text-align: center;
   line-height: 2;
+}
+
+.permit-number {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.permit-title {
   font-size: 18px;
+  margin-bottom: 20px;
 }
 
-/* QR */
-.qr {
-  margin-top: 20px;
+.text {
+  font-size: 16px;
 }
 
-/* التوقيع */
-.signature {
-  margin-top: 60px;
-  text-align: left;
-  padding-left: 50px;
+.text p {
+  margin: 10px 0;
 }
 
-/* زر الطباعة */
 .print-btn {
   position: fixed;
   top: 20px;
   left: 20px;
-  padding: 10px 20px;
   background: black;
   color: white;
+  padding: 10px;
   border: none;
   cursor: pointer;
 }
 
-/* الطباعة */
 @media print {
   .print-btn {
     display: none;
   }
 }
 
-/* حجم الصفحة */
 @page {
   size: A4;
   margin: 0;
@@ -188,62 +171,65 @@ body {
 
 <div class="page">
 
-<div class="permit-number">
-إذن رقــم (${member.permit_number})
-</div>
+  <div class="content">
 
-<div class="permit-title">
-بشأن مزاولة مهنة الطب بعيادة أو مؤسسة طبية
-</div>
+    <div class="permit-number">
+      إذن رقــم (${member.permit_number})
+    </div>
 
-<div class="text">
+    <div class="permit-title">
+      بشأن مزاولة مهنة الطب بعيادة أو مؤسسة طبية
+    </div>
 
-<p>
-تنفيذا لأحكام القانون رقم (9) لسنة 1985 ولائحته التنفيذية الصادرة بقرار اللجنة الشعبية العامة (سابقا) رقم (698) لسنة 1985
-وقرار أمين اللجنة الشعبية العامة للصحة (سابقا) رقم (67) لسنة 1986
-بتحديد الأنشطة والأعمال الطبية التي يجوز مزاولتها في العيادات والمؤسسات الطبية.
-</p>
+    <div class="text">
 
-<p>
-وبالاشتراك في عضوية نقابة أطباء الأسنان واستيفاء الشروط اللازمة للحصول على الإذن
-</p>
+      <p>
+      تنفيذا لأحكام القانون رقم (9) لسنة 1985 ولائحته التنفيذية...
+      </p>
 
-<p>
-يؤذن لـ ${titleText}
-</p>
+      <p>
+      وبالاشتراك في عضوية نقابة أطباء الأسنان واستيفاء الشروط اللازمة
+      </p>
 
-<div class="name">
-د/ ${member.full_name}
-</div>
+      <p>يؤذن للسيد/السيدة</p>
 
-<p>
-${genderText.reg} تحت رقم (${member.registration_number})
-ومهنته (${genderText.job})
-بمزاولة مهنة (طب الأسنان) بعيادة أو مؤسسة طبية
-</p>
+      <h2>${member.full_name}</h2>
 
-<p>
-وذلك لمدة سنة تبدأ من تاريخ صدوره
-</p>
+      <p>
+        ${genderText.reg} تحت رقم (${member.registration_number})
+        ومهنته (${genderText.job})
+      </p>
 
-<p>
-ويلغى في الحالات المنصوص عليها في نص القانون رقم (9) لسنة (1985)
-</p>
+      <p>
+        بمزاولة مهنة (طب الأسنان) بعيادة أو مؤسسة طبية
+      </p>
 
-<p>
-صدر هذا الإذن بتاريخ: ${member.issue_date}
-</p>
+      <p>
+        وذلك لمدة سنة تبدأ من تاريخ صدوره
+      </p>
 
-</div>
+      <p>
+        ويلغى في الحالات المنصوص عليها في القانون
+      </p>
 
-<div class="qr">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${verifyUrl}" />
-</div>
+      <p>
+        صدر هذا الإذن بتاريخ: ${member.issue_date}
+      </p>
 
-<div class="signature">
-<p>د. حسام الدين عمر بن زايد</p>
-<p>نقيب أطباء الأسنان بالزاوية</p>
-</div>
+    </div>
+
+    <br/>
+
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${verifyUrl}" /> 
+
+  </div>
+  <!-- التوقيع 👇 -->
+    <div class="signature">
+      <p>د. حسام الدين عمر بن زايد</p>
+      <p>نقيب أطباء الأسنان بالزاوية</p>
+    </div>
+
+  </div>
 
 </div>
 

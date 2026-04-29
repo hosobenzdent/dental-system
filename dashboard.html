@@ -95,9 +95,27 @@ th, td {
 </div>
 
 <script>
-
+let editingId = null;
 const API = "";
+async function editMember(id) {
+  const res = await fetch(API + "/members");
+  const data = await res.json();
 
+  const m = data.find(x => x.id === id);
+
+  document.getElementById("name").value = m.full_name;
+  document.getElementById("reg").value = m.registration_number;
+  document.getElementById("gender").value = m.gender;
+
+  document.getElementById("university").value = m.university || "";
+  document.getElementById("grad_date").value = m.graduation_date || "";
+  document.getElementById("national_id").value = m.national_id || "";
+  document.getElementById("birth_year").value = m.birth_year || "";
+
+  editingId = id;
+
+  document.querySelector("button[onclick='addMember()']").innerText = "تحديث";
+}
 async function addMember() {
   const full_name = document.getElementById("name").value;
   const registration_number = document.getElementById("reg").value;
@@ -108,19 +126,50 @@ async function addMember() {
   const national_id = document.getElementById("national_id").value;
   const birth_year = document.getElementById("birth_year").value;
 
-  await fetch(API + "/members", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      full_name,
-      registration_number,
-      gender,
-      university,
-      graduation_date,
-      national_id,
-      birth_year
-    })
-  });
+  // ✏️ إذا تعديل
+  if (editingId) {
+    await fetch(API + "/members/" + editingId, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name,
+        registration_number,
+        gender,
+        university,
+        graduation_date,
+        national_id,
+        birth_year
+      })
+    });
+
+    editingId = null;
+    document.querySelector("button[onclick='addMember()']").innerText = "إضافة";
+  }
+
+  // ➕ إضافة جديدة
+  else {
+    await fetch(API + "/members", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name,
+        registration_number,
+        gender,
+        university,
+        graduation_date,
+        national_id,
+        birth_year
+      })
+    });
+  }
+
+  // تنظيف الحقول
+  document.getElementById("name").value = "";
+  document.getElementById("reg").value = "";
+  document.getElementById("university").value = "";
+  document.getElementById("grad_date").value = "";
+  document.getElementById("national_id").value = "";
+  document.getElementById("birth_year").value = "";
 
   loadMembers();
 }
@@ -138,25 +187,20 @@ async function loadMembers() {
     .filter(m => m.full_name.toLowerCase().includes(search))
     .forEach(m => {
 
-      const row = `
-        <tr>
-          <td>${m.full_name}</td>
-          <td>${m.registration_number}</td>
-          <td>${m.gender}</td>
-<td>${m.university || ''}</td>
-<td>${m.birth_year || ''}</td>
-          <td>
-            <button onclick="issuePermit(${m.id})">إصدار</button>
-          </td>
+     const row = `
+<tr>
+  <td>${m.full_name}</td>
+  <td>${m.registration_number}</td>
+  <td>${m.gender}</td>
+  <td>${m.university || ''}</td>
+  <td>${m.birth_year || ''}</td>
 
-          <td>
-            <button onclick="viewPermit(${m.id})">فتح</button>
-          </td>
-       <td>
-  <button onclick="deleteMember(${m.id})">❌ حذف</button>
-</td>
-        </tr>
-      `;
+  <td><button onclick="issuePermit(${m.id})">إصدار</button></td>
+  <td><button onclick="viewPermit(${m.id})">فتح</button></td>
+  <td><button onclick="editMember(${m.id})">✏️ تعديل</button></td>
+  <td><button onclick="deleteMember(${m.id})">❌ حذف</button></td>
+</tr>
+`;
 
       table.innerHTML += row;
     });

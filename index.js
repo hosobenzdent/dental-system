@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS members (
 app.get('/', (req, res) => {
   res.send("Dental System Running ✅");
 });
-
+app.get('/dashboard', (req, res) => {
+  res.sendFile(__dirname + '/dashboard.html');
+});
 // إضافة عضو
 app.post('/members', async (req, res) => {
   const { full_name, registration_number, gender } = req.body;

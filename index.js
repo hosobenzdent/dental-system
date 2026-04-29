@@ -31,13 +31,31 @@ app.get('/dashboard', (req, res) => {
 });
 // إضافة عضو
 app.post('/members', async (req, res) => {
-  const { full_name, registration_number, gender } = req.body;
+  const {
+  full_name,
+  registration_number,
+  gender,
+  graduation_date,
+  university,
+  national_id,
+  birth_year
+} = req.body;
 
-  const result = await pool.query(
-    `INSERT INTO members (full_name, registration_number, gender)
-     VALUES ($1, $2, $3) RETURNING *`,
-    [full_name, registration_number, gender]
-  );
+ const result = await pool.query(
+  `INSERT INTO members 
+  (full_name, registration_number, gender, graduation_date, university, national_id, birth_year)
+  VALUES ($1, $2, $3, $4, $5, $6, $7)
+  RETURNING *`,
+  [
+    full_name,
+    registration_number,
+    gender,
+    graduation_date,
+    university,
+    national_id,
+    birth_year
+  ]
+);
 
   res.json(result.rows[0]);
 });

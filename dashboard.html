@@ -100,10 +100,23 @@ async function addMember() {
   const registration_number = document.getElementById("reg").value;
   const gender = document.getElementById("gender").value;
 
-  await fetch(API + "/members", {
+  const university = document.getElementById("university").value;
+  const graduation_date = document.getElementById("grad_date").value;
+  const national_id = document.getElementById("national_id").value;
+  const birth_year = document.getElementById("birth_year").value;
+
+  await fetch("/members", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ full_name, registration_number, gender })
+    body: JSON.stringify({
+      full_name,
+      registration_number,
+      gender,
+      university,
+      graduation_date,
+      national_id,
+      birth_year
+    })
   });
 
   loadMembers();

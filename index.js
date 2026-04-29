@@ -142,8 +142,8 @@ body {
 .signature {
   position: absolute;
   bottom: 120px;
-  lift: 80px;
-  text-align: lift;
+  left: 80px;
+  text-align: left;
   font-weight: bold;
 }
 .print-btn {

@@ -81,7 +81,16 @@ app.post('/permit/:id', async (req, res) => {
 
   res.json({ permit_number: permitNumber });
 });
+app.delete('/members/:id', async (req, res) => {
+  const id = req.params.id;
 
+  await pool.query(
+    `DELETE FROM members WHERE id = $1`,
+    [id]
+  );
+
+  res.json({ message: "تم حذف العضو ✅" });
+});
 // عرض إذن رسمي
 app.get('/permit/:id', async (req, res) => {
   const result = await pool.query(

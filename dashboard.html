@@ -189,16 +189,15 @@ async function loadMembers() {
 
      const row = `
 <tr>
-  <td>${m.full_name}</td>
-  <td>${m.registration_number}</td>
-  <td>${m.gender}</td>
-  <td>${m.university || ''}</td>
-  <td>${m.birth_year || ''}</td>
-
-  <td><button onclick="issuePermit(${m.id})">إصدار</button></td>
-  <td><button onclick="viewPermit(${m.id})">فتح</button></td>
-  <td><button onclick="editMember(${m.id})">✏️ تعديل</button></td>
-  <td><button onclick="deleteMember(${m.id})">❌ حذف</button></td>
+  <th>الاسم</th>
+  <th>رقم القيد</th>
+  <th>الجنس</th>
+  <th>الجامعة</th>       
+  <th>سنة الميلاد</th>   
+  <th>إذن</th>
+  <th>عرض</th>
+  <th>تعديل</th> 
+  <th>حذف</th>
 </tr>
 `;
 
@@ -223,7 +222,7 @@ async function deleteMember(id) {
 
   loadMembers();
 }
-
+loadMembers();
 </script>
 
 </body>

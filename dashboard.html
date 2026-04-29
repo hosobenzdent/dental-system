@@ -86,6 +86,7 @@ th, td {
     <th>سنة الميلاد</th>   
     <th>إذن</th>
     <th>عرض</th>
+  <th>حذف</th>
   </tr>
 </thead>
     <tbody id="table"></tbody>
@@ -107,7 +108,7 @@ async function addMember() {
   const national_id = document.getElementById("national_id").value;
   const birth_year = document.getElementById("birth_year").value;
 
-  await fetch("/members", {
+  await fetch(API + "/members", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -151,6 +152,9 @@ async function loadMembers() {
           <td>
             <button onclick="viewPermit(${m.id})">فتح</button>
           </td>
+       <td>
+  <button onclick="deleteMember(${m.id})">❌ حذف</button>
+</td>
         </tr>
       `;
 
@@ -166,8 +170,15 @@ async function issuePermit(id) {
 function viewPermit(id) {
   window.open(API + "/permit/" + id, "_blank");
 }
+async function deleteMember(id) {
+  if (!confirm("هل أنت متأكد من حذف هذا العضو؟")) return;
 
-loadMembers();
+  await fetch(API + "/members/" + id, {
+    method: "DELETE"
+  });
+
+  loadMembers();
+}
 
 </script>
 

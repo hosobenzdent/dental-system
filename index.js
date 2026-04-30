@@ -118,40 +118,6 @@ app.post('/permit/:id', async (req, res) => {
 
   res.json({ permit_number: permitNumber });
 });
-app.put('/members/:id', async (req, res) => {
-  const id = req.params.id;
-
-  const {
-    full_name,
-    registration_number,
-    gender,
-    university,
-    graduation_date,
-    national_id,
-    birth_year
-  } = req.body;
-
-  await pool.query(
-    `UPDATE members SET 
-      full_name=$1,
-      registration_number=$2,
-      gender=$3,
-      university=$4,
-      graduation_date=$5,
-      national_id=$6,
-      birth_year=$7
-     WHERE id=$8`,
-    [
-      full_name,
-      registration_number,
-      gender,
-      university,
-      graduation_date,
-      national_id,
-      birth_year,
-      id
-    ]
-  );
 
   res.json({ message: "تم التحديث ✅" });
 });

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+هذا ملف dashboard.html هل هو متوافق مع تعديلاتك<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -6,45 +6,45 @@
 
 <style>
 body {
-  font-family: Arial;
-  background: #f5f5f5;
-  padding: 20px;
+  font-family: Arial;
+  background: #f5f5f5;
+  padding: 20px;
 }
 
 h1 {
-  text-align: center;
+  text-align: center;
 }
 
 .container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
 }
 
 input, select, button {
-  padding: 10px;
-  margin: 5px;
+  padding: 10px;
+  margin: 5px;
 }
 
 button {
-  background: black;
-  color: white;
-  border: none;
-  cursor: pointer;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
 }
 
 th, td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
 }
 
 </style>
@@ -56,42 +56,42 @@ th, td {
 
 <div class="container">
 
-  <h3>➕ إضافة طبيب</h3>
+  <h3>➕ إضافة طبيب</h3>
 
-  <input id="name" placeholder="الاسم الكامل">
-  <input id="reg" placeholder="رقم القيد">
-  <input id="university" placeholder="الجامعة">
+  <input id="name" placeholder="الاسم الكامل">
+  <input id="reg" placeholder="رقم القيد">
+  <input id="university" placeholder="الجامعة">
 <input id="grad_date" placeholder="تاريخ التخرج">
 <input id="national_id" placeholder="الرقم الوطني">
 <input id="birth_year" placeholder="سنة الميلاد">
-  <select id="gender">
-    <option value="male">ذكر</option>
-    <option value="female">أنثى</option>
-  </select>
+  <select id="gender">
+    <option value="male">ذكر</option>
+    <option value="female">أنثى</option>
+  </select>
 
-  <button onclick="addMember()">إضافة</button>
+  <button onclick="addMember()">إضافة</button>
 
-  <hr>
+  <hr>
 
-  <h3>🔍 بحث</h3>
-  <input id="search" placeholder="ابحث بالاسم..." onkeyup="loadMembers()">
+  <h3>🔍 بحث</h3>
+  <input id="search" placeholder="ابحث بالاسم..." onkeyup="loadMembers()">
 
-  <table>
-  <thead>
-  <tr>
-    <th>الاسم</th>
-    <th>رقم القيد</th>
-    <th>الجنس</th>
-    <th>الجامعة</th>
-    <th>سنة الميلاد</th>
-    <th>إذن</th>
-    <th>عرض</th>
-    <th>تعديل</th>
-    <th>حذف</th>
-  </tr>
+  <table>
+  <thead>
+  <tr>
+    <th>الاسم</th>
+    <th>رقم القيد</th>
+    <th>الجنس</th>
+    <th>الجامعة</th>
+    <th>سنة الميلاد</th>
+    <th>إذن</th>
+    <th>عرض</th>
+    <th>تعديل</th>
+    <th>حذف</th>
+  </tr>
 </thead>
-    <tbody id="table"></tbody>
-  </table>
+    <tbody id="table"></tbody>
+  </table>
 
 </div>
 
@@ -99,130 +99,130 @@ th, td {
 let editingId = null;
 const API = "";
 async function editMember(id) {
-  const res = await fetch(API + "/members");
-  const data = await res.json();
+  const res = await fetch(API + "/members");
+  const data = await res.json();
 
-  const m = data.find(x => x.id === id);
+  const m = data.find(x => x.id === id);
 
-  document.getElementById("name").value = m.full_name;
-  document.getElementById("reg").value = m.registration_number;
-  document.getElementById("gender").value = m.gender;
+  document.getElementById("name").value = m.full_name;
+  document.getElementById("reg").value = m.registration_number;
+  document.getElementById("gender").value = m.gender;
 
-  document.getElementById("university").value = m.university || "";
-  document.getElementById("grad_date").value = m.graduation_date || "";
-  document.getElementById("national_id").value = m.national_id || "";
-  document.getElementById("birth_year").value = m.birth_year || "";
+  document.getElementById("university").value = m.university || "";
+  document.getElementById("grad_date").value = m.graduation_date || "";
+  document.getElementById("national_id").value = m.national_id || "";
+  document.getElementById("birth_year").value = m.birth_year || "";
 
-  editingId = id;
+  editingId = id;
 
-  document.querySelector("button[onclick='addMember()']").innerText = "تحديث";
+  document.querySelector("button[onclick='addMember()']").innerText = "تحديث";
 }
 async function addMember() {
-  const full_name = document.getElementById("name").value;
-  const registration_number = document.getElementById("reg").value;
-  const gender = document.getElementById("gender").value;
+  const full_name = document.getElementById("name").value;
+  const registration_number = document.getElementById("reg").value;
+  const gender = document.getElementById("gender").value;
 
-  const university = document.getElementById("university").value;
-  const graduation_date = document.getElementById("grad_date").value;
-  const national_id = document.getElementById("national_id").value;
-  const birth_year = document.getElementById("birth_year").value;
+  const university = document.getElementById("university").value;
+  const graduation_date = document.getElementById("grad_date").value;
+  const national_id = document.getElementById("national_id").value;
+  const birth_year = document.getElementById("birth_year").value;
 
-  // ✏️ إذا تعديل
-  if (editingId) {
-    await fetch(API + "/members/" + editingId, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        full_name,
-        registration_number,
-        gender,
-        university,
-        graduation_date,
-        national_id,
-        birth_year
-      })
-    });
+  // ✏️ إذا تعديل
+  if (editingId) {
+    await fetch(API + "/members/" + editingId, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name,
+        registration_number,
+        gender,
+        university,
+        graduation_date,
+        national_id,
+        birth_year
+      })
+    });
 
-    editingId = null;
-    document.querySelector("button[onclick='addMember()']").innerText = "إضافة";
-  }
+    editingId = null;
+    document.querySelector("button[onclick='addMember()']").innerText = "إضافة";
+  }
 
-  // ➕ إضافة جديدة
-  else {
-    await fetch(API + "/members", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        full_name,
-        registration_number,
-        gender,
-        university,
-        graduation_date,
-        national_id,
-        birth_year
-      })
-    });
-  }
+  // ➕ إضافة جديدة
+  else {
+    await fetch(API + "/members", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name,
+        registration_number,
+        gender,
+        university,
+        graduation_date,
+        national_id,
+        birth_year
+      })
+    });
+  }
 
-  // تنظيف الحقول
-  document.getElementById("name").value = "";
-  document.getElementById("reg").value = "";
-  document.getElementById("university").value = "";
-  document.getElementById("grad_date").value = "";
-  document.getElementById("national_id").value = "";
-  document.getElementById("birth_year").value = "";
+  // تنظيف الحقول
+  document.getElementById("name").value = "";
+  document.getElementById("reg").value = "";
+  document.getElementById("university").value = "";
+  document.getElementById("grad_date").value = "";
+  document.getElementById("national_id").value = "";
+  document.getElementById("birth_year").value = "";
 
-  loadMembers();
+  loadMembers();
 }
 
 async function loadMembers() {
-  const search = document.getElementById("search").value.toLowerCase();
+  const search = document.getElementById("search").value.toLowerCase();
 
-  const res = await fetch(API + "/members");
-  const data = await res.json();
+  const res = await fetch(API + "/members");
+  const data = await res.json();
 
-  const table = document.getElementById("table");
-  table.innerHTML = "";
+  const table = document.getElementById("table");
+  table.innerHTML = "";
 
-  data
-    .filter(m => m.full_name.toLowerCase().includes(search))
-    .forEach(m => {
+  data
+    .filter(m => m.full_name.toLowerCase().includes(search))
+    .forEach(m => {
 
-  const row = `
+  const row = `
 <tr>
-  <td>${m.full_name}</td>
-  <td>${m.registration_number}</td>
-  <td>${m.gender}</td>
-  <td>${m.university || ''}</td>
-  <td>${m.birth_year || ''}</td>
+  <td>${m.full_name}</td>
+  <td>${m.registration_number}</td>
+  <td>${m.gender}</td>
+  <td>${m.university || ''}</td>
+  <td>${m.birth_year || ''}</td>
 
-  <td><button onclick="issuePermit(${m.id})">إصدار</button></td>
-  <td><button onclick="viewPermit(${m.id})">عرض</button></td>
-  <td><button onclick="editMember(${m.id})">✏️ تعديل</button></td>
-  <td><button onclick="deleteMember(${m.id})">❌ حذف</button></td>
+  <td><button onclick="issuePermit(${m.id})">إصدار</button></td>
+  <td><button onclick="viewPermit(${m.id})">عرض</button></td>
+  <td><button onclick="editMember(${m.id})">✏️ تعديل</button></td>
+  <td><button onclick="deleteMember(${m.id})">❌ حذف</button></td>
 </tr>
 `;
 
-      table.innerHTML += row;
-    });
+      table.innerHTML += row;
+    });
 }
 
 async function issuePermit(id) {
-  await fetch(API + "/permit/" + id, { method: "POST" });
-  alert("✅ تم إصدار الإذن");
+  await fetch(API + "/permit/" + id, { method: "POST" });
+  alert("✅ تم إصدار الإذن");
 }
 
 function viewPermit(id) {
-  window.open(API + "/permit/" + id, "_blank");
+  window.open(API + "/permit/" + id, "_blank");
 }
 async function deleteMember(id) {
-  if (!confirm("هل أنت متأكد من حذف هذا العضو؟")) return;
+  if (!confirm("هل أنت متأكد من حذف هذا العضو؟")) return;
 
-  await fetch(API + "/members/" + id, {
-    method: "DELETE"
-  });
+  await fetch(API + "/members/" + id, {
+    method: "DELETE"
+  });
 
-  loadMembers();
+  loadMembers();
 }
 loadMembers();
 </script>

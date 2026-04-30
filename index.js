@@ -1,211 +1,369 @@
 const express = require('express');
 const { Pool } = require('pg');
-require('dotenv').config(); // تحميل متغيرات البيئة
-
 const app = express();
+
 app.use(express.json());
 
-// 1. الاتصال بقاعدة البيانات
+// الاتصال بقاعدة البيانات (Supabase / Render)
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
-// 2. إنشاء الجدول وتحديث الأعمدة الناقصة
-const initDB = async () => {
-  try {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS members (
-        id SERIAL PRIMARY KEY,
-        full_name TEXT NOT NULL,
-        registration_number TEXT,
-        gender TEXT,
-        university TEXT,
-        graduation_date TEXT,
-        national_id TEXT,
-        birth_year TEXT,
-        permit_number INTEGER,
-        issue_date DATE
-      );
-    `);
-    console.log("Database initialized successfully ✅");
-  } catch (err) {
-    console.error("Error initializing database: ", err);
-  }
-};
-initDB();
-
-// --- المسارات (Routes) ---
+// إنشاء الجدول
+pool.query(`
+CREATE TABLE IF NOT EXISTS members (
+  id SERIAL PRIMARY KEY,
+  full_name TEXT,
+  registration_number TEXT,
+  gender TEXT,
+  permit_number INTEGER,
+  issue_date TEXT
+);
+`);
 
 // الصفحة الرئيسية
 app.get('/', (req, res) => {
-  res.send("<h1>Dental Union System - Online ✅</h1>");
+  res.send("Dental System Running ✅");
 });
-
-// إضافة عضو جديد
+app.get('/dashboard', (req, res) => {
+  res.sendFile(__dirname + '/dashboard.html');
+});
+// إضافة عضو
 app.post('/members', async (req, res) => {
-  try {
-    const { full_name, registration_number, gender, graduation_date, university, national_id, birth_year } = req.body;
-    const result = await pool.query(
-      `INSERT INTO members 
-      (full_name, registration_number, gender, graduation_date, university, national_id, birth_year)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [full_name, registration_number, gender, graduation_date, university, national_id, birth_year]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: "خطأ أثناء إضافة العضو: " + err.message });
-  }
-});
+  const {
+  full_name,
+  registration_number,
+  gender,
+  graduation_date,
+  university,
+  national_id,
+  birth_year
+} = req.body;
 
-// عرض كل الأعضاء
-app.get('/members', async (req, res) => {
-  try {
-    const result = await pool.query(`SELECT * FROM members ORDER BY id DESC`);
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+ const result = await pool.query(
+  `INSERT INTO members 
+  (full_name, registration_number, gender, graduation_date, university, national_id, birth_year)
+  VALUES ($1, $2, $3, $4, $5, $6, $7)
+  RETURNING *`,
+  [
+    full_name,
+    registration_number,
+    gender,
+    graduation_date,
+    university,
+    national_id,
+    birth_year
+  ]
+);
 
-// تحديث بيانات عضو
+  res.json(result.rows[0]);
+});
+// ✏️ تحديث بيانات عضو
 app.put('/members/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { full_name, registration_number, gender, university, graduation_date, national_id, birth_year } = req.body;
-    
-    await pool.query(
-      `UPDATE members SET 
-        full_name=$1, registration_number=$2, gender=$3, university=$4, 
-        graduation_date=$5, national_id=$6, birth_year=$7
-      WHERE id=$8`,
-      [full_name, registration_number, gender, university, graduation_date, national_id, birth_year, id]
-    );
-    res.json({ message: "تم تحديث البيانات بنجاح ✅" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const id = req.params.id;
+
+  const {
+    full_name,
+    registration_number,
+    gender,
+    university,
+    graduation_date,
+    national_id,
+    birth_year
+  } = req.body;
+
+  await pool.query(
+    `UPDATE members SET
+      full_name = $1,
+      registration_number = $2,
+      gender = $3,
+      university = $4,
+      graduation_date = $5,
+      national_id = $6,
+      birth_year = $7
+     WHERE id = $8`,
+    [
+      full_name,
+      registration_number,
+      gender,
+      university,
+      graduation_date,
+      national_id,
+      birth_year,
+      id
+    ]
+  );
+
+  res.json({ message: "تم التحديث ✅" });
+});
+// عرض الأعضاء
+app.get('/members', async (req, res) => {
+  const result = await pool.query(`SELECT * FROM members`);
+  res.json(result.rows);
 });
 
-// حذف عضو
-app.delete('/members/:id', async (req, res) => {
-  try {
-    await pool.query(`DELETE FROM members WHERE id = $1`, [req.params.id]);
-    res.json({ message: "تم حذف العضو بنجاح ✅" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// إصدار رقم إذن مزاولة
+// إنشاء إذن
 app.post('/permit/:id', async (req, res) => {
-  try {
-    const permitNumber = Math.floor(10000 + Math.random() * 90000); // رقم خماسي
-    await pool.query(
-      `UPDATE members SET permit_number = $1, issue_date = CURRENT_DATE WHERE id = $2`,
-      [permitNumber, req.params.id]
-    );
-    res.json({ message: "تم إصدار الإذن", permit_number: permitNumber });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+  const id = req.params.id;
 
-// عرض الإذن الرسمي للطباعة
+  const permitNumber = Math.floor(1000 + Math.random() * 9000);
+
+  await pool.query(
+    `UPDATE members 
+     SET permit_number = $1, issue_date = CURRENT_DATE
+     WHERE id = $2`,
+    [permitNumber, id]
+  );
+
+  res.json({ permit_number: permitNumber });
+});
+app.put('/members/:id', async (req, res) => {
+  const id = req.params.id;
+
+  const {
+    full_name,
+    registration_number,
+    gender,
+    university,
+    graduation_date,
+    national_id,
+    birth_year
+  } = req.body;
+
+  await pool.query(
+    `UPDATE members SET 
+      full_name=$1,
+      registration_number=$2,
+      gender=$3,
+      university=$4,
+      graduation_date=$5,
+      national_id=$6,
+      birth_year=$7
+     WHERE id=$8`,
+    [
+      full_name,
+      registration_number,
+      gender,
+      university,
+      graduation_date,
+      national_id,
+      birth_year,
+      id
+    ]
+  );
+
+  res.json({ message: "تم التحديث ✅" });
+});
+app.delete('/members/:id', async (req, res) => {
+  const id = req.params.id;
+
+  await pool.query(
+    `DELETE FROM members WHERE id = $1`,
+    [id]
+  );
+
+  res.json({ message: "تم حذف العضو ✅" });
+});
+// عرض إذن رسمي
 app.get('/permit/:id', async (req, res) => {
-  try {
-    const result = await pool.query(`SELECT * FROM members WHERE id = $1`, [req.params.id]);
-    const member = result.rows[0];
+  const result = await pool.query(
+    `SELECT * FROM members WHERE id = $1`,
+    [req.params.id]
+  );
 
-    if (!member || !member.permit_number) {
-      return res.status(404).send("<h2>⚠️ عذراً، لا يوجد إذن مزاولة لهذا العضو</h2>");
-    }
+  const member = result.rows[0];
 
-    const isFemale = member.gender === 'أنثى' || member.gender === 'female';
-    const title = isFemale ? "السيدة" : "السيد";
-    const profession = isFemale ? "طبيبة أسنان" : "طبيب أسنان";
-    const registeredAs = isFemale ? "المسجلة" : "المسجل";
-    
-    const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${member.permit_number}`;
+  if (!member) return res.send("غير موجود");
 
-    res.send(`
-    <html dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <title>إذن مزاولة - ${member.full_name}</title>
-        <style>
-            body { margin: 0; background: #f0f0f0; font-family: 'Arial', sans-serif; }
-            .page { width: 210mm; height: 297mm; padding: 20mm; margin: 10mm auto; background: white; border: 1px solid #d3d3d3; position: relative; box-sizing: border-box; }
-            .content { text-align: center; margin-top: 100px; }
-            .permit-number { font-size: 24px; font-weight: bold; color: #1a5f7a; }
-            .permit-title { font-size: 22px; margin: 20px 0; border-bottom: 2px solid #333; display: inline-block; padding-bottom: 5px; }
-            .text-body { font-size: 18px; line-height: 1.8; text-align: justify; margin-top: 30px; }
-            .member-name { font-size: 26px; font-weight: bold; color: #c0392b; margin: 15px 0; }
-            .qr-code { margin-top: 40px; }
-            .signature { position: absolute; bottom: 80px; left: 80px; text-align: center; }
-            .print-btn { position: fixed; top: 20px; left: 20px; padding: 10px 20px; background: #27ae60; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
-            @media print { .print-btn { display: none; } .page { margin: 0; border: none; } }
-        </style>
-    </head>
-    <body>
-        <button class="print-btn" onclick="window.print()">🖨 طباعة الإذن</button>
-        <div class="page">
-            <div class="content">
-                <div class="permit-number">إذن رقــم: ${member.permit_number}</div>
-                <div class="permit-title">إذن مزاولة مهنة طب الأسنان</div>
-                
-                <div class="text-body">
-                    <p>بناءً على أحكام التشريعات النافذة المنظمة للمهن الطبية، وبعد الإطلاع على ملف العضو المذكور أدناه واستيفاء كافة الشروط القانونية لنقابة أطباء الأسنان.</p>
-                    <p align="center">يؤذن لـ ${title}/</p>
-                    <div class="member-name">${member.full_name}</div>
-                    <p>باعتباره/ها <strong>${registeredAs}</strong> بالنقابة تحت رقم قيد (<strong>${member.registration_number}</strong>) ومهنته/ها (<strong>${profession}</strong>) بمزاولة المهنة في العيادات والمؤسسات الطبية المعتمدة.</p>
-                    <p>صدر هذا الإذن بتاريخ: ${new Date(member.issue_date).toLocaleDateString('ar-LY')}</p>
-                    <p>صلاحية الإذن: سنة واحدة من تاريخ الصدور.</p>
-                </div>
+  if (!member.permit_number) {
+    return res.send("⚠️ لم يتم إصدار إذن لهذا العضو بعد");
+  }
 
-                <div class="qr-code">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${verifyUrl}" />
-                    <p style="font-size: 12px;">امسح الكود للتحقق من صحة البيانات</p>
-                </div>
-            </div>
+  // 👇 النص الذكي حسب الجنس
+  const isFemale = member.gender === 'female';
 
-            <div class="signature">
-                <p>نقيب أطباء الأسنان</p>
-                <p><strong>د. حسام الدين عمر بن زايد</strong></p>
-                <p>ـــــــــــــــــــــــــــــــــــــ</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    `);
-  } catch (err) {
-    res.status(500).send("خطأ في النظام");
-  }
+  const genderText = {
+    reg: isFemale ? "المسجلة" : "المسجل",
+    job: isFemale ? "طبيبة أسنان" : "طبيب أسنان"
+  };
+
+  const titleText = isFemale ? "السيدة" : "السيد";
+
+  const verifyUrl = `${req.protocol}://${req.get('host')}/verify/${member.permit_number}`;
+
+  res.send(`
+<html dir="rtl">
+<head>
+<meta charset="UTF-8">
+
+<style>
+
+body {
+  margin: 0;
+  background: #ccc;
+  font-family: Arial;
+}
+
+.page {
+  width: 794px;
+  height: 1123px;
+  margin: auto;
+  background-image: url('https://github.com/hosobenzdent/dental-system/blob/main/background.jpg?raw=true');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.content {
+  position: absolute;
+  top: 300px;
+  left: 70px;
+  right: 70px;
+  text-align: center;
+  line-height: 2;
+}
+
+.permit-number {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.permit-title {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.text {
+  font-size: 16px;
+}
+
+.text p {
+  margin: 10px 0;
+}
+.signature {
+  position: absolute;
+  bottom: 120px;
+  left: 80px;
+  text-align: left;
+  font-weight: bold;
+}
+.print-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: black;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+@media print {
+  .print-btn {
+    display: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨 طباعة</button>
+
+<div class="page">
+
+  <div class="content">
+
+    <div class="permit-number">
+      إذن رقــم (${member.permit_number})
+    </div>
+
+    <div class="permit-title">
+      بشأن مزاولة مهنة الطب بعيادة أو مؤسسة طبية
+    </div>
+
+    <div class="text">
+
+      <p>
+      تنفيذا لأحكام القانون رقم (9) لسنة 1985 ولائحته التنفيذية...
+      </p>
+
+      <p>
+      وبالاشتراك في عضوية نقابة أطباء الأسنان واستيفاء الشروط اللازمة
+      </p>
+
+      <p>يؤذن للسيد/السيدة</p>
+
+      <h2>${member.full_name}</h2>
+
+      <p>
+        ${genderText.reg} تحت رقم (${member.registration_number})
+        ومهنته (${genderText.job})
+      </p>
+
+      <p>
+        بمزاولة مهنة (طب الأسنان) بعيادة أو مؤسسة طبية
+      </p>
+
+      <p>
+        وذلك لمدة سنة تبدأ من تاريخ صدوره
+      </p>
+
+      <p>
+        ويلغى في الحالات المنصوص عليها في القانون
+      </p>
+
+      <p>
+        صدر هذا الإذن بتاريخ: ${member.issue_date}
+      </p>
+
+    </div>
+
+    <br/>
+
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${verifyUrl}" /> 
+
+  </div>
+  <!-- التوقيع 👇 -->
+    <div class="signature">
+      <p>د. حسام الدين عمر بن زايد</p>
+      <p>نقيب أطباء الأسنان بالزاوية</p>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
+  `);
 });
 
-// التحقق من الإذن عبر الـ QR
-app.get('/verify/:permit_number', async (req, res) => {
-  try {
-    const result = await pool.query(`SELECT * FROM members WHERE permit_number = $1`, [req.params.permit_number]);
-    const member = result.rows[0];
+// التحقق
+app.get('/verify/:id', async (req, res) => {
+  const result = await pool.query(
+    `SELECT * FROM members WHERE permit_number = $1`,
+    [req.params.id]
+  );
 
-    if (!member) return res.status(404).send("<h2 style='color:red;'>❌ بيانات غير صحيحة أو إذن ملغي</h2>");
+  const member = result.rows[0];
 
-    res.send(`
-      <div style="text-align:center; font-family:Arial; direction:rtl; border:2px solid green; padding:20px; margin:20px;">
-        <h2 style="color:green;">✅ إذن مزاولة معتمد</h2>
-        <p><strong>الاسم:</strong> ${member.full_name}</p>
-        <p><strong>رقم القيد:</strong> ${member.registration_number}</p>
-        <p><strong>تاريخ الإصدار:</strong> ${new Date(member.issue_date).toLocaleDateString('ar-LY')}</p>
-        <p>الحالة: ساري المفعول</p>
-      </div>
-    `);
-  } catch (err) {
-    res.status(500).send("خطأ في التحقق");
-  }
+  if (!member) return res.send("❌ غير صحيح");
+
+  res.send(`
+    <h2>✅ إذن صحيح</h2>
+    <p>${member.full_name}</p>
+  `);
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
+app.listen(3000, () => {
+  console.log("Server running 🚀");
 });

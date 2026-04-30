@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS members (
   permit_number INTEGER,
   issue_date TEXT
 );
-`);
 
 // الصفحة الرئيسية
 app.get('/', (req, res) => {

@@ -188,17 +188,18 @@ async function loadMembers() {
     .filter(m => m.full_name.toLowerCase().includes(search))
     .forEach(m => {
 
-     const row = `
+  const row = `
 <tr>
-  <th>الاسم</th>
-  <th>رقم القيد</th>
-  <th>الجنس</th>
-  <th>الجامعة</th>       
-  <th>سنة الميلاد</th>   
-  <th>إذن</th>
-  <th>عرض</th>
-  <th>تعديل</th> 
-  <th>حذف</th>
+  <td>${m.full_name}</td>
+  <td>${m.registration_number}</td>
+  <td>${m.gender}</td>
+  <td>${m.university || ''}</td>
+  <td>${m.birth_year || ''}</td>
+
+  <td><button onclick="issuePermit(${m.id})">إصدار</button></td>
+  <td><button onclick="viewPermit(${m.id})">عرض</button></td>
+  <td><button onclick="editMember(${m.id})">✏️ تعديل</button></td>
+  <td><button onclick="deleteMember(${m.id})">❌ حذف</button></td>
 </tr>
 `;
 
